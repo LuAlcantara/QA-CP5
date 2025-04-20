@@ -1,0 +1,459 @@
+{
+	"info": {
+		"_postman_id": "f06b2003-9c65-4051-bb27-804eae2040aa",
+		"name": "Testes API Restful Booker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "44244532",
+		"_collection_link": "https://lucasalcantara-3804163.postman.co/workspace/Lucas-Alcantara's-Workspace~2a3374c6-3821-4983-8d09-d3c5ccddcef9/collection/44244532-f06b2003-9c65-4051-bb27-804eae2040aa?action=share&source=collection_link&creator=44244532"
+	},
+	"item": [
+		{
+			"name": "Listar Todos os Quartos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Teste 1: Verificar se o status da resposta é 200 OK\r",
+							"pm.test(\"Status deve ser 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Teste 2: Verificar se o corpo da resposta contém uma lista de quartos\r",
+							"pm.test(\"Resposta deve conter uma lista de quartos\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"rooms\");\r",
+							"    pm.expect(jsonData.rooms).to.be.an(\"array\");\r",
+							"    pm.expect(jsonData.rooms.length).to.be.greaterThan(0);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"rooms\": [\r\n        {\r\n            \"roomid\": 1,\r\n            \"roomName\": \"101\",\r\n            \"type\": \"single\",\r\n            \"accessible\": true,\r\n            \"image\": \"/images/room2.jpg\",\r\n            \"description\": \"...\",\r\n            \"features\": [\"TV\", \"WiFi\", \"Safe\"],\r\n            \"roomPrice\": 100\r\n        },\r\n        {\r\n            \"roomid\": 2,\r\n            \"roomName\": \"102\",\r\n            \"type\": \"Double\",\r\n            \"accessible\": false,\r\n            \"features\": [\"TV\", \"WiFi\", \"Mini Fridge\"],\r\n            \"roomPrice\": 150\r\n        },\r\n        ...\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3003/api/room"
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Quarto - Positivo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Teste 1: Verificar se o status da resposta é 200 Created\r",
+							"pm.test(\"Status deve ser 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Teste 2: Verificar se o quarto foi criado com o nome correto\r",
+							"pm.test(\"Criação do quarto foi bem-sucedida\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.success).to.be.true;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"roomName\": \"104\",\r\n    \"type\": \"Double\",\r\n    \"accessible\": false,\r\n    \"roomPrice\": 150,\r\n    \"features\": [\"TV\", \"WiFi\", \"Mini Fridge\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3003/api/room"
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Quarto - Negativo (Dados Inválidos)",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Log para depurar o método e o corpo da requisição antes de enviar\r",
+							"console.log(\"Método da requisição:\", pm.request.method);\r",
+							"console.log(\"Corpo da requisição:\", pm.request.body.raw);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Teste 1: Confirma se o servidor retorna o status 400 Bad Request para dados inválidos\r",
+							"pm.test(\"Status deve ser 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"// Teste 2: Verifica se a resposta contém uma lista de erros indicando o problema nos dados\r",
+							"pm.test(\"Resposta deve conter mensagem de erro de validação\", function () {\r",
+							"    console.log(\"Corpo da resposta:\", pm.response.text());\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"errors\");\r",
+							"    pm.expect(jsonData.errors).to.be.an(\"array\");\r",
+							"    pm.expect(jsonData.errors[0]).to.be.a(\"string\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"roomName\": \"104\",\r\n    \"type\": \"InvalidType\",\r\n    \"accessible\": false,\r\n    \"roomPrice\": 150,\r\n    \"features\": [\"TV\", \"WiFi\", \"Mini Fridge\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3003/api/room"
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar Quarto 102",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Teste 1: Confirma se o servidor retorna o status 200 OK ao deletar o quarto\r",
+							"pm.test(\"Status deve ser 200 OK\", function () {\r",
+							"    console.log(\"Status da resposta:\", pm.response.code);\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Teste 2: Verifica se a resposta confirma a exclusão ou é vazia\r",
+							"pm.test(\"Resposta deve confirmar a exclusão ou ser vazia\", function () {\r",
+							"    console.log(\"Corpo da resposta (texto):\", pm.response.text());\r",
+							"    console.log(\"Comprimento do corpo:\", pm.response.text().length);\r",
+							"    if (pm.response.text().trim().length > 0) {\r",
+							"        console.log(\"Corpo não vazio, parseando JSON...\");\r",
+							"        var jsonData = pm.response.json();\r",
+							"        console.log(\"JSON parseado:\", jsonData);\r",
+							"        if (jsonData.hasOwnProperty(\"success\")) {\r",
+							"            pm.expect(jsonData.success).to.be.true;\r",
+							"        }\r",
+							"        else if (jsonData.hasOwnProperty(\"message\")) {\r",
+							"            pm.expect(jsonData.message).to.be.a(\"string\");\r",
+							"        }\r",
+							"        else {\r",
+							"            pm.expect(jsonData).to.be.an(\"object\");\r",
+							"        }\r",
+							"    } else {\r",
+							"        console.log(\"Corpo vazio, considerando o teste como passado.\");\r",
+							"        pm.expect(true).to.be.true;\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3003/api/room/2"
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar Quarto 103",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Teste 1: Confirma se o servidor retorna o status 200 OK ao atualizar o quarto\r",
+							"pm.test(\"Status deve ser 200 OK\", function () {\r",
+							"    console.log(\"Status da resposta:\", pm.response.code);\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Teste 2: Verifica se a resposta confirma a atualização ou é vazia\r",
+							"pm.test(\"Resposta deve confirmar a atualização ou ser vazia\", function () {\r",
+							"    console.log(\"Corpo da resposta (texto):\", pm.response.text());\r",
+							"    console.log(\"Comprimento do corpo:\", pm.response.text().length);\r",
+							"    if (pm.response.text().trim().length > 0) {\r",
+							"        console.log(\"Corpo não vazio, parseando JSON...\");\r",
+							"        var jsonData = pm.response.json();\r",
+							"        console.log(\"JSON parseado:\", jsonData);\r",
+							"        if (jsonData.hasOwnProperty(\"success\")) {\r",
+							"            pm.expect(jsonData.success).to.be.true;\r",
+							"        }\r",
+							"        else if (jsonData.hasOwnProperty(\"message\")) {\r",
+							"            pm.expect(jsonData.message).to.be.a(\"string\");\r",
+							"        }\r",
+							"        else {\r",
+							"            pm.expect(jsonData).to.be.an(\"object\");\r",
+							"        }\r",
+							"    } else {\r",
+							"        console.log(\"Corpo vazio, considerando o teste como passado.\");\r",
+							"        pm.expect(true).to.be.true;\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"roomName\": \"103\",\r\n    \"type\": \"Double\",\r\n    \"accessible\": false,\r\n    \"roomPrice\": 200,\r\n    \"features\": [\"TV\", \"WiFi\", \"Mini Fridge\", \"Air Conditioning\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3003/api/room/3"
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar Quarto 103 - Negativo (Sem Autenticação)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Teste 1: Confirma se o servidor retorna o status 401 Unauthorized por falta de autenticação\r",
+							"pm.test(\"Status deve ser 401 Unauthorized\", function () {\r",
+							"    console.log(\"Status da resposta:\", pm.response.code);\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							"\r",
+							"// Teste 2: Verifica se a resposta contém uma mensagem de erro de autenticação\r",
+							"pm.test(\"Resposta deve conter mensagem de erro de autenticação\", function () {\r",
+							"    console.log(\"Corpo da resposta (texto):\", pm.response.text());\r",
+							"    console.log(\"Comprimento do corpo:\", pm.response.text().length);\r",
+							"    if (pm.response.text().trim().length > 0) {\r",
+							"        console.log(\"Corpo não vazio, parseando JSON...\");\r",
+							"        var jsonData = pm.response.json();\r",
+							"        console.log(\"JSON parseado:\", jsonData);\r",
+							"        pm.expect(jsonData).to.have.property(\"errors\");\r",
+							"        pm.expect(jsonData.errors).to.be.an(\"array\");\r",
+							"        pm.expect(jsonData.errors[0]).to.be.a(\"string\");\r",
+							"        pm.expect(jsonData.errors[0]).to.include(\"Authentication required\");\r",
+							"    } else {\r",
+							"        console.log(\"Corpo vazio, falhando o teste pois esperamos uma mensagem de erro.\");\r",
+							"        pm.expect(false).to.be.true; // Falha se o corpo estiver vazio\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"roomName\": \"103\",\r\n    \"type\": \"Double\",\r\n    \"accessible\": false,\r\n    \"roomPrice\": 200,\r\n    \"features\": [\"TV\", \"WiFi\", \"Mini Fridge\", \"Air Conditioning\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3003/api/room/3"
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar Quarto 103",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Teste 1: Confirma se o servidor retorna o status 200 OK ao buscar o quarto\r",
+							"pm.test(\"Status deve ser 200 OK\", function () {\r",
+							"    console.log(\"Status da resposta:\", pm.response.code);\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Teste 2: Verifica se a resposta contém os dados corretos do quarto 103\r",
+							"pm.test(\"Resposta deve conter os dados corretos do quarto 103\", function () {\r",
+							"    console.log(\"Corpo da resposta (texto):\", pm.response.text());\r",
+							"    console.log(\"Comprimento do corpo:\", pm.response.text().length);\r",
+							"    var jsonData = pm.response.json();\r",
+							"    console.log(\"JSON parseado:\", jsonData);\r",
+							"    // Valida os campos esperados\r",
+							"    pm.expect(jsonData).to.have.property(\"roomid\").and.to.equal(3);\r",
+							"    pm.expect(jsonData).to.have.property(\"roomName\").and.to.equal(\"103\");\r",
+							"    pm.expect(jsonData).to.have.property(\"type\").and.to.equal(\"Double\");\r",
+							"    pm.expect(jsonData).to.have.property(\"accessible\").and.to.equal(false);\r",
+							"    pm.expect(jsonData).to.have.property(\"roomPrice\").and.to.equal(200);\r",
+							"    pm.expect(jsonData).to.have.property(\"features\").and.to.be.an(\"array\");\r",
+							"    pm.expect(jsonData.features).to.include.members([\"TV\", \"WiFi\", \"Mini Fridge\", \"Air Conditioning\"]);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3003/api/room/3"
+			},
+			"response": []
+		},
+		{
+			"name": "Criar Reserva - Quarto 103",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status deve ser 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Criação da reserva foi bem-sucedida\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"bookings\");\r",
+							"    pm.expect(jsonData.bookings).to.be.an(\"array\");\r",
+							"    pm.expect(jsonData.bookings[0]).to.have.property(\"bookingid\");\r",
+							"    pm.expect(jsonData.bookings[0]).to.have.property(\"roomid\").and.to.equal(3);\r",
+							"    pm.expect(jsonData.bookings[0]).to.have.property(\"firstname\").and.to.equal(\"Lucas\");\r",
+							"    pm.expect(jsonData.bookings[0]).to.have.property(\"lastname\").and.to.equal(\"Alcantara\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"roomid\": 3,\r\n    \"firstname\": \"Lucas\",\r\n    \"lastname\": \"Alcantara\",\r\n    \"depositpaid\": true,\r\n    \"bookingdates\": {\r\n        \"checkin\": \"2025-07-01\",\r\n        \"checkout\": \"2025-07-05\"\r\n    },\r\n    \"phone\": \"1234567890\",\r\n    \"email\": \"lucas@alcantara.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/booking/"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": {
+			"password": "password",
+			"username": "admin"
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://www.automationintesting.online",
+			"type": "string"
+		}
+	]
+}
